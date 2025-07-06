@@ -13,6 +13,7 @@ import {
   useParams,
 } from "react-router-dom";
 import HomePage from "./Pages/HomePage";
+import WatchRouteWithHeader from "./Pages/WatchRouteWithHeader";
 import "./styles.css";
 import { CircularProgress, Box } from "@mui/material";
 import { Provider } from "react-redux";
@@ -152,6 +153,7 @@ function App() {
           <CircularProgress size={64} />
         </Box>
       )}
+
       {!loading && songs && (
         <Routes>
           <Route
@@ -169,6 +171,10 @@ function App() {
                 onAddSongToList={handleAddSongToList}
               />
             }
+          />
+          <Route
+            path="/watch/:videoId"
+            element={<WatchRouteWithHeader />}
           />
         </Routes>
       )}
