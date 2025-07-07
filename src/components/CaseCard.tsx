@@ -230,10 +230,13 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
             textAlign: "center",
             color: isDarkMode ? "#fff" : "#333",
             width: "100%",
+            maxWidth: "160px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
+            display: "block"
           }}
+          title={item.title}
         >
           {isLoading ? "Loading..." : item.title}
         </h2>

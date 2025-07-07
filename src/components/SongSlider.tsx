@@ -111,6 +111,7 @@ const SongSlider: React.FC<SongSliderProps> = ({
           WebkitOverflowScrolling: 'touch',
           msOverflowStyle: 'none',
           borderRadius: '16px',
+          gap: '10px',
           boxShadow: isDarkMode ? '0 2px 12px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.08)',
           padding: '0.5rem 0',
           scrollbarColor: isDarkMode ? '#444 #000' : '#ccc #f5f5f5',
@@ -151,8 +152,8 @@ const SongSlider: React.FC<SongSliderProps> = ({
                     justifyContent: 'flex-start',
                   }
                 : {
-                    minWidth: window.innerWidth <= 650 ? 160 : 240,
-                    width: window.innerWidth <= 650 ? 160 : 240,
+                    minWidth: window.innerWidth <= 650 ? 160 : 180,
+                    width: window.innerWidth <= 650 ? 160 : 180,
                     flex: '0 0 auto',
                     cursor: 'pointer',
                     margin: '0 10px',
