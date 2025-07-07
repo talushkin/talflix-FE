@@ -130,40 +130,97 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
 
   // Default (rectangle) display
   return (
-    <div
-      className="case"
-      onMouseDown={onMouseDown}
-      style={{
-        backgroundColor: isDarkMode ? "#333" : "#fffce8",
-        border: isDarkMode
-          ? "1px solid rgb(71, 69, 69)"
-          : "1px solid rgb(234, 227, 227)",
-        borderRadius: "18px",
-        transition: "border 0.2s",
-        position: "relative",
-        overflow: "hidden",
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      <img
-        src={item.image || item.imageUrl || imageUrl}
-        alt={item.title}
+    <Tooltip title={item.title} arrow placement="top">
+      <div
+        className="case"
+        onMouseDown={onMouseDown}
+        style={{
+          backgroundColor: isDarkMode ? "#333" : "#fffce8",
+          border: isDarkMode
+            ? "1px solid rgb(71, 69, 69)"
+            : "1px solid rgb(234, 227, 227)",
+          borderRadius: "18px",
+          transition: "border 0.2s",
+          position: "relative",
+          overflow: "hidden",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+      <div
         style={{
           width: "180px",
           height: "140px",
-          objectFit: "cover",
+          position: "relative",
           borderTopLeftRadius: "18px",
           borderTopRightRadius: "18px",
+          overflow: "hidden",
           cursor: "pointer"
         }}
         onClick={handlePlaySong}
-        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-          (e.target as HTMLImageElement).src = `https://placehold.co/180x140?text=${item.title}`;
-        }}
-      />
+      >
+        <img
+          src={item.image || item.imageUrl || imageUrl}
+          alt={item.title}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderTopLeftRadius: "18px",
+            borderTopRightRadius: "18px",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            transition: "opacity 0.5s",
+            opacity: 1,
+            zIndex: 1
+          }}
+          className="casecard-img"
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            (e.target as HTMLImageElement).src = `https://placehold.co/180x140?text=${item.title}`;
+          }}
+        />
+        <div
+          className="casecard-video-container"
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 2,
+            opacity: 0,
+            pointerEvents: "none",
+            transition: "opacity 0.5s"
+          }}
+        >
+          {/* Use YouTube embed for video preview if item.url is a YouTube link */}
+          {item.url && item.url.includes('youtube.com/watch?v=') ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${(item.url.match(/[?&]v=([^&#]+)/) || [])[1] || ''}?autoplay=1&mute=1&controls=0&loop=1&playlist=${(item.url.match(/[?&]v=([^&#]+)/) || [])[1] || ''}`}
+              style={{ width: "100%", height: "100%", objectFit: "cover", borderTopLeftRadius: "18px", borderTopRightRadius: "18px", border: 0 }}
+              allow="autoplay; encrypted-media"
+              allowFullScreen={false}
+              tabIndex={-1}
+              frameBorder={0}
+              title={item.title}
+            />
+          ) : null}
+        </div>
+      </div>
+      <style>{`
+        .case:hover .casecard-img {
+          opacity: 0;
+        }
+        .case:hover .casecard-video-container {
+          opacity: 1;
+        }
+        .casecard-video-container video {
+          pointer-events: none;
+        }
+      `}</style>
       {/* Only show title for non-circles displayType, using type-safe workaround to avoid TS2367 */}
       {[DisplayType.Slider, DisplayType.Radio, DisplayType.SearchResults, DisplayType.Recommended, DisplayType.ArtistRadio, DisplayType.DailyMix, DisplayType.Trending, DisplayType.DiscoverWeekly, DisplayType.RecommendedArtists, DisplayType.RadioOfTheDay, DisplayType.TopCharts, DisplayType.ThrowbackHits].includes(displayType) && (
         <h2
@@ -274,6 +331,7 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
           }
         `}
       </style>
-    </div>
+      </div>
+    </Tooltip>
   );
 }

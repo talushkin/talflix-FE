@@ -13,8 +13,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Box, IconButton, Slider } from "@mui/material";
 // LanguageSelector removed: only English
 import ThemeModeButton from "./ThemeModeButton";
-import FooterControlPanel from "./FooterControlPanel";
-import FooterSongTable from "./FooterSongTable";
+
 
 // Helper to detect mobile (max-width: 650px)
 function useIsMobile() {
@@ -384,48 +383,14 @@ const FooterBar = (props: any) => {
           position: 'relative',
         }}
       >
-        <FooterControlPanel
-          isDarkMode={isDarkMode}
-          isMobile={isMobile}
-          videoId={videoId}
-          thumbUrl={thumbUrl}
-          selectedSong={selectedSong as Song}
-          isPlaying={isPlaying}
-          handlePrevSong={handlePrevSong}
-          handlePlayPause={handlePlayPause}
-          handleNextSong={handleNextSong}
-          getCurrentSongIndex={getCurrentSongIndex}
-          songList={songList}
-          playerRef={playerRef}
-          onPlayerReady={onPlayerReady}
-          totalDuration={totalDuration}
-          currentTime={currentTime}
-          handleSeek={handleSeek}
-          formatTime={formatTime}
-          setVolume={setVolumeGlobal}
-          volume={volume}
-        />
+        {/* FooterControlPanel removed */}
         {/* ThemeModeButton: only show on desktop at far right */}
       </Box>
-      <FooterSongTable
-        isMobile={isMobile}
-        songList={songList}
-        sensors={sensors}
-        handleSongDragEnd={handleSongDragEnd}
-        SortableSongRow={SortableSongRow}
-        selectedSong={selectedSong as Song}
-        nextSongToHighlight={nextSongToHighlight}
-        currentSongIndex={currentSongIndex}
-        setIsPlaying={setIsPlaying}
-        setSelectedSong={setSelectedSong}
-        isDarkMode={isDarkMode}
-      />
-      {/* ThemeModeButton: only show on desktop at far right */}
-      {!isMobile && (
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <ThemeModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-        </div>
-      )}
+      {/* FooterSongTable removed */}
+      {/* ThemeModeButton: always show at far right */}
+      <div style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}>
+        <ThemeModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+      </div>
     </Box>
   );
 };

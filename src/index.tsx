@@ -35,30 +35,6 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(true); // Set initial theme to dark
   // Song list state (array of songs)
   const [songList, setSongList] = useState<any[]>([
-    {
-      title: "Bohemian Rhapsody",
-      artist: "Queen",
-      duration: "5:55",
-      url: "https://www.youtube.com/watch?v=fJ9rUzIMcZQ"
-    },
-    {
-      title: "Stairway to Heaven",
-      artist: "Led Zeppelin",
-      duration: "8:02",
-      url: "https://www.youtube.com/watch?v=QkF3oxziUI4"
-    },
-    {
-      title: "Sweet Child O' Mine",
-      artist: "Guns N' Roses",
-      duration: "5:56",
-      url: "https://www.youtube.com/watch?v=1w7OgIMMRc4"
-    },
-    {
-      title: "Smoke on the Water",
-      artist: "Deep Purple",
-      duration: "5:40",
-      url: "https://www.youtube.com/watch?v=zUwEIt9ez7M"
-    }
   ]);
 
   const navigate = useNavigate();
@@ -81,8 +57,8 @@ function App() {
       }
       if (genres && genres.length > 0) {
         let initialGenre = genres[0];
-        setSelectedGenre(initialGenre);
-        setSelectedSong(initialGenre.songs[0] || null); // Set initial selected song if available
+        //setSelectedGenre(initialGenre);
+        setSelectedSong( null); // Set initial selected song if available
         // Set search options to all songs from all genres in Redux
         const allSongs = genres.flatMap((g) => g.songs || []);
         //dispatch(setSearchOptions(allSongs));
