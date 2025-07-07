@@ -9,11 +9,10 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useNavigate,
-  useParams,
+  useNavigate,useParams
 } from "react-router-dom";
 import HomePage from "./Pages/HomePage";
-import WatchRouteWithHeader from "./Pages/WatchRouteWithHeader";
+import WatchPage from "./Pages/WatchPage";
 import "./styles.css";
 import { CircularProgress, Box } from "@mui/material";
 import { Provider } from "react-redux";
@@ -174,12 +173,19 @@ function App() {
           />
           <Route
             path="/watch/:videoId"
-            element={<WatchRouteWithHeader />}
+            element={<WatchPageRoute />}
           />
         </Routes>
       )}
     </>
   );
+
+// Route component to extract videoId param using useParams
+function WatchPageRoute() {
+  const { videoId } = useParams();
+  if (!videoId || typeof videoId !== 'string') return null;
+  return <WatchPage videoId={videoId} />;
+}
 }
 
 root.render(

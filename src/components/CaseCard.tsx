@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 // Language support removed: only English
 import type { Song } from "../utils/storage";
+import { DisplayType } from "../utils/storage";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import AddIcon from "@mui/icons-material/Add";
 import Tooltip from "@mui/material/Tooltip";
@@ -12,9 +14,11 @@ interface CaseCardProps {
   isDarkMode?: boolean;
   onAddSongToList?: (song: Song, location?: number) => void;
   onSelectSong?: (song: Song) => void;
+  displayType?: DisplayType;
 }
 
-export default function CaseCard({ item, category, index, isDarkMode = true, onAddSongToList, onSelectSong }: CaseCardProps) {
+export default function CaseCard({ item, category, index, isDarkMode = true, onAddSongToList, onSelectSong, displayType = DisplayType.Slider }: CaseCardProps) {
+  const navigate = useNavigate();
   // Handler for play button: select and play (do not add to list here)
 
   // Language support removed: only English
@@ -26,9 +30,21 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
 
   const handlePlaySong = (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log("Playing pressed on song:", item);
-    if ( onAddSongToList) {
-      onAddSongToList(item, 1); 
+    // Extract YouTube video ID from item.url
+    let videoId = "";
+    if (item.url) {
+      const match = item.url.match(/[?&]v=([^&#]+)/);
+      if (match && match[1]) {
+        videoId = match[1];
+      }
+    }
+    if (videoId) {
+      navigate(`/watch/${videoId}`);
+    } else {
+      // fallback: just play as before
+      if (onAddSongToList) {
+        onAddSongToList(item, 1);
+      }
     }
   };
   // Handler for add-to-song-list button (to be implemented by parent via prop or context)
@@ -68,6 +84,51 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
     window.addEventListener('mouseup', onMouseUp);
   };
 
+  // Circle display for "circles" type (artist cards)
+  if (displayType === DisplayType.Circles) {
+    return (
+      <div
+        className="case circle-case"
+        onMouseDown={onMouseDown}
+        style={{
+          backgroundColor: isDarkMode ? "#333" : "#fffce8",
+          border: isDarkMode ? "1px solid rgb(71, 69, 69)" : "1px solid rgb(234, 227, 227)",
+          borderRadius: "50%",
+          width: 120,
+          height: 120,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          margin: "0 auto",
+          overflow: "hidden",
+          boxSizing: "border-box",
+        }}
+      >
+        <img
+          src={item.image || item.imageUrl || imageUrl}
+          alt={item.artist || item.title}
+          style={{
+            width: 80,
+            height: 80,
+            objectFit: "cover",
+            borderRadius: "50%",
+            cursor: "pointer",
+            marginBottom: 6,
+            marginTop: 6,
+            border: isDarkMode ? "2px solid #222" : "2px solid #eee"
+          }}
+          onClick={handlePlaySong}
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            (e.target as HTMLImageElement).src = `https://placehold.co/80x80?text=${item.artist || item.title}`;
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Default (rectangle) display
   return (
     <div
       className="case"
@@ -96,25 +157,30 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
           objectFit: "cover",
           borderTopLeftRadius: "18px",
           borderTopRightRadius: "18px",
+          cursor: "pointer"
         }}
+        onClick={handlePlaySong}
         onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
           (e.target as HTMLImageElement).src = `https://placehold.co/180x140?text=${item.title}`;
         }}
       />
-      <h2
-        style={{
-          fontSize: "1rem",
-          margin: "8px 0 0 0",
-          textAlign: "center",
-          color: isDarkMode ? "#fff" : "#333",
-          width: "100%",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {isLoading ? "Loading..." : item.title}
-      </h2>
+      {/* Only show title for non-circles displayType, using type-safe workaround to avoid TS2367 */}
+      {[DisplayType.Slider, DisplayType.Radio, DisplayType.SearchResults, DisplayType.Recommended, DisplayType.ArtistRadio, DisplayType.DailyMix, DisplayType.Trending, DisplayType.DiscoverWeekly, DisplayType.RecommendedArtists, DisplayType.RadioOfTheDay, DisplayType.TopCharts, DisplayType.ThrowbackHits].includes(displayType) && (
+        <h2
+          style={{
+            fontSize: "1rem",
+            margin: "8px 0 0 0",
+            textAlign: "center",
+            color: isDarkMode ? "#fff" : "#333",
+            width: "100%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {isLoading ? "Loading..." : item.title}
+        </h2>
+      )}
      
       <Tooltip title="Play song" arrow placement="top">
         <button

@@ -98,7 +98,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             if (filtered.length === 0) {
                 searchMissTimeout.current = setTimeout(() => {
                     onSearchMiss(value);
-                }, 500);
+                }, 300);
             }
         }
     };
