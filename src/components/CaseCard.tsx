@@ -129,28 +129,11 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
   }
 
   // Default (rectangle) display
-  const [hovered, setHovered] = useState(false);
-  // For fade transitions
-  const [showVideo, setShowVideo] = useState(false);
-
-  // When hovered, show video after a short delay for smooth fade
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (hovered) {
-      timeout = setTimeout(() => setShowVideo(true), 100);
-    } else {
-      setShowVideo(false);
-    }
-    return () => clearTimeout(timeout);
-  }, [hovered]);
-
   return (
     <Tooltip title={item.title} arrow placement="top">
       <div
         className="case"
         onMouseDown={onMouseDown}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         style={{
           backgroundColor: isDarkMode ? "#333" : "#fffce8",
           border: isDarkMode
@@ -166,67 +149,78 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
           alignItems: "center",
         }}
       >
-        <div
+      <div
+        style={{
+          width: "180px",
+          height: "140px",
+          position: "relative",
+          borderTopLeftRadius: "18px",
+          borderTopRightRadius: "18px",
+          overflow: "hidden",
+          cursor: "pointer"
+        }}
+        onClick={handlePlaySong}
+      >
+        <img
+          src={item.image || item.imageUrl || imageUrl}
+          alt={item.title}
           style={{
-            width: "180px",
-            height: "140px",
-            position: "relative",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
             borderTopLeftRadius: "18px",
             borderTopRightRadius: "18px",
-            overflow: "hidden",
-            cursor: "pointer"
+            position: "absolute",
+            top: 0,
+            left: 0,
+            transition: "opacity 0.5s",
+            opacity: 1,
+            zIndex: 1
           }}
-          onClick={handlePlaySong}
+          className="casecard-img"
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            (e.target as HTMLImageElement).src = `https://placehold.co/180x140?text=${item.title}`;
+          }}
+        />
+        <div
+          className="casecard-video-container"
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 2,
+            opacity: 0,
+            pointerEvents: "none",
+            transition: "opacity 0.5s"
+          }}
         >
-          <img
-            src={item.image || item.imageUrl || imageUrl}
-            alt={item.title}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              borderTopLeftRadius: "18px",
-              borderTopRightRadius: "18px",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              transition: "opacity 0.5s",
-              opacity: hovered ? 0 : 1,
-              zIndex: 1
-            }}
-            className="casecard-img"
-            onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-              (e.target as HTMLImageElement).src = `https://placehold.co/180x140?text=${item.title}`;
-            }}
-          />
-          {/* Only render iframe when hovered for performance */}
-          {showVideo && item.url && item.url.includes('youtube.com/watch?v=') && (
-            <div
-              className="casecard-video-container"
-              style={{
-                width: "100%",
-                height: "100%",
-                position: "absolute",
-                top: 0,
-                left: 0,
-                zIndex: 2,
-                opacity: hovered ? 1 : 0,
-                pointerEvents: "none",
-                transition: "opacity 0.5s"
-              }}
-            >
-              <iframe
-                src={`https://www.youtube.com/embed/${(item.url.match(/[?&]v=([^&#]+)/) || [])[1] || ''}?autoplay=1&mute=1&controls=0&loop=1&playlist=${(item.url.match(/[?&]v=([^&#]+)/) || [])[1] || ''}`}
-                style={{ width: "100%", height: "100%", objectFit: "cover", borderTopLeftRadius: "18px", borderTopRightRadius: "18px", border: 0 }}
-                allow="autoplay; encrypted-media"
-                allowFullScreen={false}
-                tabIndex={-1}
-                frameBorder={0}
-                title={item.title}
-              />
-            </div>
-          )}
+          {/* Use YouTube embed for video preview if item.url is a YouTube link */}
+          {item.url && item.url.includes('youtube.com/watch?v=') ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${(item.url.match(/[?&]v=([^&#]+)/) || [])[1] || ''}?autoplay=1&mute=1&controls=0&loop=1&playlist=${(item.url.match(/[?&]v=([^&#]+)/) || [])[1] || ''}`}
+              style={{ width: "100%", height: "100%", objectFit: "cover", borderTopLeftRadius: "18px", borderTopRightRadius: "18px", border: 0 }}
+              allow="autoplay; encrypted-media"
+              allowFullScreen={false}
+              tabIndex={-1}
+              frameBorder={0}
+              title={item.title}
+            />
+          ) : null}
         </div>
+      </div>
+      <style>{`
+        .case:hover .casecard-img {
+          opacity: 0;
+        }
+        .case:hover .casecard-video-container {
+          opacity: 1;
+        }
+        .casecard-video-container video {
+          pointer-events: none;
+        }
+      `}</style>
       {/* Only show title for non-circles displayType, using type-safe workaround to avoid TS2367 */}
       {[DisplayType.Slider, DisplayType.Radio, DisplayType.SearchResults, DisplayType.Recommended, DisplayType.ArtistRadio, DisplayType.DailyMix, DisplayType.Trending, DisplayType.DiscoverWeekly, DisplayType.RecommendedArtists, DisplayType.RadioOfTheDay, DisplayType.TopCharts, DisplayType.ThrowbackHits].includes(displayType) && (
         <h2
@@ -306,37 +300,38 @@ export default function CaseCard({ item, category, index, isDarkMode = true, onA
         </button>
       </Tooltip>
       {/* Overlay for hover effect */}
-      <style>{`
-        .case .case-play-btn,
-        .case .case-add-btn {
-          opacity: 0;
-          pointer-events: none;
-          transition: opacity 0.3s, transform 0.3s;
-          transform: translateY(40px);
-        }
-        .case:hover .case-play-btn,
-        .case:hover .case-add-btn {
-          opacity: 1 !important;
-          pointer-events: auto !important;
-          animation: fadeInPlayBtn 0.3s;
-          transform: translateY(0);
-        }
-        .case:not(:hover) .case-play-btn,
-        .case:not(:hover) .case-add-btn {
-          animation: fadeOutPlayBtn 0.3s;
-          transform: translateY(40px);
-        }
-        @keyframes fadeInPlayBtn {
-          from { opacity: 0; transform: translateY(40px);}
-          to { opacity: 1; transform: translateY(0);}
-        }
-        @keyframes fadeOutPlayBtn {
-          from { opacity: 1; transform: translateY(0);}
-          to { opacity: 0; transform: translateY(40px);}
-        }
-      `}</style>
+      <style>
+        {`
+          .case .case-play-btn,
+          .case .case-add-btn {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(40px);
+          }
+          .case:hover .case-play-btn,
+          .case:hover .case-add-btn {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            animation: fadeInPlayBtn 0.3s;
+            transform: translateY(0);
+          }
+          .case:not(:hover) .case-play-btn,
+          .case:not(:hover) .case-add-btn {
+            animation: fadeOutPlayBtn 0.3s;
+            transform: translateY(40px);
+          }
+          @keyframes fadeInPlayBtn {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
+          }
+          @keyframes fadeOutPlayBtn {
+            from { opacity: 1; transform: translateY(0);}
+            to { opacity: 0; transform: translateY(40px);}
+          }
+        `}
       </style>
-    </div>
-  </Tooltip>
+      </div>
+    </Tooltip>
   );
 }
